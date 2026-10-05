@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métodos Numéricos - Ecuaciones No Lineales</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- PyScript CSS & JS -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto space-y-6">
+        
+        <header class="text-center py-4 border-b border-slate-700">
+            <h1 class="text-3xl font-bold text-blue-400">Solucionador de Ecuaciones No Lineales</h1>
+            <p class="text-slate-400 mt-1">Selecciona el apartado correspondiente al método numérico a resolver</p>
+        </header>
+
+        <!-- Navegación por pestañas (Apartados) -->
+        <div class="flex border-b border-slate-700 space-x-2 overflow-x-auto">
+            <button id="tab-biseccion" onclick="cambiarPestana('biseccion')" class="py-3 px-6 font-medium text-blue-400 border-b-2 border-blue-500 bg-slate-800/50 rounded-t-lg focus:outline-none transition-colors whitespace-nowrap">
+                Método de Bisección
+            </button>
+            <button id="tab-falsa_posicion" onclick="cambiarPestana('falsa_posicion')" class="py-3 px-6 font-medium text-slate-400 hover:text-slate-200 bg-slate-800/20 rounded-t-lg focus:outline-none transition-colors whitespace-nowrap">
+                Método de Falsa Posición
+            </button>
+            <button id="tab-punto_fijo" onclick="cambiarPestana('punto_fijo')" class="py-3 px-6 font-medium text-slate-400 hover:text-slate-200 bg-slate-800/20 rounded-t-lg focus:outline-none transition-colors whitespace-nowrap">
+                Método de Punto Fijo
+            </button>
+        </div>
+
+        <!-- CONTENIDO APARTADO 1: BISECCIÓN -->
+        <div id="sec-biseccion" class="space-y-6">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+                <h2 class="text-xl font-bold text-blue-400 mb-2">Parámetros - Bisección</h2>
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-slate-300">Función f(x):</label>
+                    <input type="text" id="bis_f" value="" placeholder="ej. x**3 + 4*x**2 - 10" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                    <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 text-xs text-slate-400 space-y-1 mt-1">
+                        <p class="text-slate-300 font-semibold">💡 Consejos para la sintaxis:</p>
+                        <p>• <strong>Raíz cuadrada:</strong> <code class="text-blue-300">sqrt(x)</code> (ej. <code class="text-slate-300">sqrt(x + 1)</code>)</p>
+                        <p>• <strong>Exponencial (e):</strong> <code class="text-blue-300">exp(x)</code> (ej. <code class="text-slate-300">exp(-x)</code>)</p>
+                        <p>• <strong>Trigonométricas:</strong> <code class="text-blue-300">sin(x)</code>, <code class="text-blue-300">cos(x)</code>, <code class="text-blue-300">tan(x)</code></p>
+                        <p>• <strong>Potencias:</strong> <code class="text-blue-300">x**2</code> (usar dos asteriscos <code class="text-slate-300">**</code>)</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300">Límite inferior (a):</label>
+                        <input type="number" step="any" id="bis_a" value="" placeholder="ej. 1" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300">Límite superior (b):</label>
+                        <input type="number" step="any" id="bis_b" value="" placeholder="ej. 2" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300">Tolerancia (Tol):</label>
+                        <input type="number" step="any" id="bis_tol" value="" placeholder="ej. 0.0001" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <button py-click="resolver_biseccion" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg transition duration-200">
+                    Calcular por Bisección
+                </button>
+            </div>
+            <div id="res-biseccion" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hidden"></div>
+        </div>
+
+        <!-- CONTENIDO APARTADO 2: FALSA POSICIÓN -->
+        <div id="sec-falsa_posicion" class="space-y-6 hidden">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+                <h2 class="text-xl font-bold text-blue-400 mb-2">Parámetros - Falsa Posición</h2>
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-slate-300">Función f(x):</label>
+                    <input type="text" id="fal_f" value="" placeholder="ej. exp(-x) - x" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                    <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 text-xs text-slate-400 space-y-1 mt-1">
+                        <p class="text-slate-300 font-semibold">💡 Consejos para la sintaxis:</p>
+                        <p>• <strong>Raíz cuadrada:</strong> <code class="text-blue-300">sqrt(x)</code> (ej. <code class="text-slate-300">sqrt(x + 1)</code>)</p>
+                        <p>• <strong>Exponencial (e):</strong> <code class="text-blue-300">exp(x)</code> (ej. <code class="text-slate-300">exp(-x)</code>)</p>
+                        <p>• <strong>Trigonométricas:</strong> <code class="text-blue-300">sin(x)</code>, <code class="text-blue-300">cos(x)</code>, <code class="text-blue-300">tan(x)</code></p>
+                        <p>• <strong>Potencias:</strong> <code class="text-blue-300">x**2</code> (usar dos asteriscos <code class="text-slate-300">**</code>)</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300">Límite inferior (a):</label>
+                        <input type="number" step="any" id="fal_a" value="" placeholder="ej. 0" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300">Límite superior (b):</label>
+                        <input type="number" step="any" id="fal_b" value="" placeholder="ej. 1" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300">Tolerancia (Tol):</label>
+                        <input type="number" step="any" id="fal_tol" value="" placeholder="ej. 0.001" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <button py-click="resolver_falsa_posicion" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg transition duration-200">
+                    Calcular por Falsa Posición
+                </button>
+            </div>
+            <div id="res-falsa_posicion" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hidden"></div>
+        </div>
+
+        <!-- CONTENIDO APARTADO 3: PUNTO FIJO -->
+        <div id="sec-punto_fijo" class="space-y-6 hidden">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+                <h2 class="text-xl font-bold text-blue-400 mb-2">Parámetros - Punto Fijo</h2>
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-slate-300">Despeje g(x) para x = g(x):</label>
+                    <input type="text" id="pf_g" value="" placeholder="ej. sqrt((-x**3 + 10) / 4)" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                    <div class="p-2.5 bg-slate-900/60 rounded-lg border border-slate-700 text-xs text-slate-400 space-y-1 mt-1">
+                        <p class="text-slate-300 font-semibold">💡 Consejos para la sintaxis:</p>
+                        <p>• <strong>Raíz cuadrada:</strong> <code class="text-blue-300">sqrt(x)</code> (ej. <code class="text-slate-300">sqrt((-x**3 + 10)/4)</code>)</p>
+                        <p>• <strong>Exponencial (e):</strong> <code class="text-blue-300">exp(x)</code> (ej. <code class="text-slate-300">exp(-x)</code>)</p>
+                        <p>• <strong>Trigonométricas:</strong> <code class="text-blue-300">sin(x)</code>, <code class="text-blue-300">cos(x)</code>, <code class="text-blue-300">tan(x)</code></p>
+                        <p>• <strong>Potencias:</strong> <code class="text-blue-300">x**2</code> (usar dos asteriscos <code class="text-slate-300">**</code>)</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300">Valor inicial (x0):</label>
+                        <input type="number" step="any" id="pf_x0" value="" placeholder="ej. 0.5" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300">Tolerancia (Tol):</label>
+                        <input type="number" step="any" id="pf_tol" value="" placeholder="ej. 0.0001" class="w-full bg-slate-700 text-white rounded-lg px-4 py-2 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <button py-click="resolver_punto_fijo" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg transition duration-200">
+                    Calcular por Punto Fijo
+                </button>
+            </div>
+            <div id="res-punto_fijo" class="bg-slate-800 p-6 rounded-xl border border-slate-700 hidden"></div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript para el cambio de pestañas -->
+    <script>
+        function cambiarPestana(metodo) {
+            const pestanas = ['biseccion', 'falsa_posicion', 'punto_fijo'];
+            pestanas.forEach(p => {
+                const sec = document.getElementById(`sec-${p}`);
+                const tab = document.getElementById(`tab-${p}`);
+                if (p === metodo) {
+                    sec.classList.remove('hidden');
+                    tab.className = "py-3 px-6 font-medium text-blue-400 border-b-2 border-blue-500 bg-slate-800/50 rounded-t-lg focus:outline-none transition-colors whitespace-nowrap";
+                } else {
+                    sec.classList.add('hidden');
+                    tab.className = "py-3 px-6 font-medium text-slate-400 hover:text-slate-200 bg-slate-800/20 rounded-t-lg focus:outline-none transition-colors whitespace-nowrap";
+                }
+            });
+        }
+    </script>
+
+    <!-- Python Logic -->
+    <script type="py">
+import math
+import re
+from js import document
+
+def fmt(val):
+    """Formatea valores numéricos a 5 decimales exactos con coma como separador decimal."""
+    if isinstance(val, (int, float)):
+        return f"{val:.5f}".replace('.', ',')
+    return str(val)
+
+def evaluar(expr, x):
+    expr_limpia = re.sub(r'(\d)\s*x', r'\1*x', expr)
+    contexto = {
+        "x": x, "math": math, "sin": math.sin, "cos": math.cos, 
+        "tan": math.tan, "exp": math.exp, "log": math.log, 
+        "sqrt": math.sqrt, "pi": math.pi
+    }
+    return eval(expr_limpia, {"__builtins__": None}, contexto)
+
+def generar_tabla_html(headers, filas):
+    html = "<div class='overflow-x-auto rounded-lg border border-slate-700 mt-4'>"
+    html += "<table class='w-full text-sm text-left text-slate-300 font-mono'>"
+    html += "<thead class='text-xs uppercase bg-slate-900/80 text-blue-400 border-b border-slate-700'><tr>"
+    for h in headers:
+        html += f"<th scope='col' class='px-4 py-3 text-center'>{h}</th>"
+    html += "</tr></thead><tbody>"
+    
+    for idx, fila in enumerate(filas):
+        bg_class = "bg-slate-800/40" if idx % 2 == 0 else "bg-slate-800/80"
+        html += f"<tr class='{bg_class} border-b border-slate-700/50 hover:bg-slate-700/30'>"
+        for val in fila:
+            html += f"<td class='px-4 py-2.5 text-center whitespace-nowrap'>{val}</td>"
+        html += "</tr>"
+    
+    html += "</tbody></table></div>"
+    return html
+
+def resolver_biseccion(event):
+    res_div = document.getElementById("res-biseccion")
+    res_div.classList.remove("hidden")
+    try:
+        f_str = document.getElementById("bis_f").value.strip()
+        a_str = document.getElementById("bis_a").value.strip()
+        b_str = document.getElementById("bis_b").value.strip()
+        tol_str = document.getElementById("bis_tol").value.strip()
+
+        if not f_str or not a_str or not b_str or not tol_str:
+            res_div.innerHTML = "<p class='text-amber-400 font-medium'>Por favor, completa todos los campos para realizar el cálculo.</p>"
+            return
+
+        a = float(a_str)
+        b = float(b_str)
+        tolerancia = float(tol_str)
+        max_iter = 100
+        
+        def f(x):
+            return evaluar(f_str, x)
+
+        fa = f(a)
+        fb = f(b)
+
+        if fa * fb > 0:
+            res_div.innerHTML = f"<div class='text-red-400 font-medium'><p>Error: no existe cambio de signo en el intervalo.</p><p class='text-sm mt-1'>f({a}) = {fa:.6f} | f({b}) = {fb:.6f}</p></div>"
+            return
+
+        filas = []
+        c_anterior = None
+        c = a
+
+        for i in range(1, max_iter + 1):
+            c = (a + b) / 2
+            fc = f(c)
+
+            if c_anterior is None:
+                Ea_str = "---"
+                Ea = None
+            else:
+                Ea = abs(c - c_anterior)
+                Ea_str = fmt(Ea)
+
+            # Formato de 5 decimales con coma aplicado a la tabla
+            filas.append([i, fmt(a), fmt(b), fmt(c), fmt(fc), Ea_str])
+
+            if Ea is not None and Ea < tolerancia:
+                break
+
+            if fa * fc < 0:
+                b = c
+                fb = fc
+            else:
+                a = c
+                fa = fc
+
+            c_anterior = c
+
+        headers = ["Iteración", "a", "b", "c", "f(c)", "Ea"]
+        res_html = f"<div class='p-3 bg-green-900/30 border border-green-600/50 rounded-lg text-green-300 font-semibold mb-1'>"
+        res_html += f"Raíz aproximada: {c:.8f}<br><span class='text-xs font-normal text-slate-300'>f(raíz) = {f(c):.8f}</span></div>"
+        res_html += generar_tabla_html(headers, filas)
+        res_div.innerHTML = res_html
+
+    except Exception as e:
+        res_div.innerHTML = f"<p class='text-red-400 font-medium'>Error al evaluar: {str(e)}</p>"
+
+def resolver_falsa_posicion(event):
+    res_div = document.getElementById("res-falsa_posicion")
+    res_div.classList.remove("hidden")
+    try:
+        f_str = document.getElementById("fal_f").value.strip()
+        a_str = document.getElementById("fal_a").value.strip()
+        b_str = document.getElementById("fal_b").value.strip()
+        tol_str = document.getElementById("fal_tol").value.strip()
+
+        if not f_str or not a_str or not b_str or not tol_str:
+            res_div.innerHTML = "<p class='text-amber-400 font-medium'>Por favor, completa todos los campos para realizar el cálculo.</p>"
+            return
+
+        a = float(a_str)
+        b = float(b_str)
+        tolerancia = float(tol_str)
+        max_iter = 100
+
+        def f(x):
+            return evaluar(f_str, x)
+
+        fa = f(a)
+        fb = f(b)
+
+        if fa * fb > 0:
+            res_div.innerHTML = f"<div class='text-red-400 font-medium'><p>Error: no existe cambio de signo en el intervalo.</p></div>"
+            return
+
+        filas = []
+        xi_anterior = None
+        xi = a
+
+        for i in range(1, max_iter + 1):
+            xi = (a * fb - b * fa) / (fb - fa)
+            fxi = f(xi)
+
+            if xi_anterior is None:
+                error_str = "-"
+                error = None
+            else:
+                error = abs(xi - xi_anterior)
+                error_str = fmt(error)
+
+            # Formato de 5 decimales con coma aplicado a la tabla
+            filas.append([i, fmt(a), fmt(b), fmt(xi), fmt(fxi), error_str])
+
+            if error is not None and error < tolerancia:
+                break
+
+            if fa * fxi < 0:
+                b = xi
+                fb = fxi
+            else:
+                a = xi
+                fa = fxi
+
+            xi_anterior = xi
+
+        headers = ["Iter.", "a", "b", "xi", "f(xi)", "Error"]
+        res_html = f"<div class='p-3 bg-green-900/30 border border-green-600/50 rounded-lg text-green-300 font-semibold mb-1'>"
+        res_html += f"Se alcanzó la tolerancia establecida.<br>Raíz aproximada = {xi:.6f} | Iteraciones = {len(filas)}</div>"
+        res_html += generar_tabla_html(headers, filas)
+        res_div.innerHTML = res_html
+
+    except Exception as e:
+        res_div.innerHTML = f"<p class='text-red-400 font-medium'>Error al evaluar: {str(e)}</p>"
+
+def resolver_punto_fijo(event):
+    res_div = document.getElementById("res-punto_fijo")
+    res_div.classList.remove("hidden")
+    try:
+        g_str = document.getElementById("pf_g").value.strip()
+        x0_str = document.getElementById("pf_x0").value.strip()
+        tol_str = document.getElementById("pf_tol").value.strip()
+
+        if not g_str or not x0_str or not tol_str:
+            res_div.innerHTML = "<p class='text-amber-400 font-medium'>Por favor, completa todos los campos para realizar el cálculo.</p>"
+            return
+
+        x0 = float(x0_str)
+        tolerancia = float(tol_str)
+        max_iter = 100
+
+        def g(x):
+            return evaluar(g_str, x)
+
+        filas = []
+        xi = x0
+
+        for i in range(1, max_iter + 1):
+            try:
+                xi_siguiente = g(xi)
+            except (ValueError, ZeroDivisionError, OverflowError) as err:
+                res_div.innerHTML = f"<div class='text-red-400 font-medium'><p>ERROR: No se puede evaluar g(x).</p><p class='text-sm mt-1'>Revisa el despeje o el valor inicial ({str(err)})</p></div>"
+                return
+
+            if xi_siguiente != 0:
+                error = abs((xi_siguiente - xi) / xi_siguiente)
+            else:
+                error = abs(xi_siguiente - xi)
+
+            # Formato de 5 decimales con coma aplicado a la tabla
+            filas.append([i, fmt(xi), fmt(xi_siguiente), fmt(error)])
+
+            if error < tolerancia:
+                res_html = f"<div class='p-3 bg-green-900/30 border border-green-600/50 rounded-lg text-green-300 font-semibold mb-1'>"
+                res_html += f"CONVERGENCIA ALCANZADA<br>Iteraciones realizadas: {i}<br>Valor aproximado de x: {xi_siguiente:.6f}<br>Error aproximado: {error:.6f}</div>"
+                res_html += generar_tabla_html(["Iteración", "xi", "g(xi)", "Error"], filas)
+                res_div.innerHTML = res_html
+                return
+
+            xi = xi_siguiente
+
+        # Si supera el máximo de iteraciones
+        res_html = f"<div class='p-3 bg-amber-900/30 border border-amber-600/50 rounded-lg text-amber-300 font-semibold mb-1'>"
+        res_html += f"No se alcanzó la tolerancia.<br>Se realizaron {max_iter} iteraciones.<br>Última aproximación: {xi:.6f}</div>"
+        res_html += generar_tabla_html(["Iteración", "xi", "g(xi)", "Error"], filas)
+        res_div.innerHTML = res_html
+
+    except Exception as e:
+        res_div.innerHTML = f"<p class='text-red-400 font-medium'>Error al evaluar: {str(e)}</p>"
+    </script>
+</body>
+</html>
