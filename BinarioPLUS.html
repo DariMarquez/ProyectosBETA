@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora-Binaria-PLUS - Sistema de Conversión y Operaciones Numéricas</title>
+    <!-- Cargar PyScript -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        /* Fondo animado estilo tecnológico (Azul profundo, Cian y Neón suave) */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 1000px; 
+            margin: 30px auto; 
+            padding: 20px; 
+            background: linear-gradient(-45deg, #0f172a, #0369a1, #0891b2, #0284c7);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Estilos del Encabezado */
+        .header-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title { 
+            font-size: 2.5em;
+            font-weight: 800;
+            color: #38bdf8; /* Azul cyan potente */
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        .sub-title {
+            font-size: 1.2em;
+            color: #f8fafc;
+            margin-top: 5px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            opacity: 0.95;
+        }
+        
+        .dashboard { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 25px; 
+        }
+
+        .card { 
+            background: rgba(255, 255, 255, 0.95); 
+            border: 2px solid #cbd5e1; 
+            border-radius: 12px; 
+            padding: 18px; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); 
+            backdrop-filter: blur(8px);
+            transition: transform 0.2s, border-color 0.2s; 
+        }
+
+        .card:hover { 
+            border-color: #0284c7; 
+            transform: translateY(-2px); 
+        }
+
+        .card h3 { 
+            margin-top: 0; 
+            color: #0284c7; 
+            font-size: 1.1em; 
+            border-bottom: 2px solid #e2e8f0; 
+            padding-bottom: 8px; 
+        }
+
+        /* Estilo específico para centrar la tarjeta de Punto Flotante */
+        .card-centrada {
+            grid-column: 1 / -1;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        label { 
+            font-size: 0.85em; 
+            font-weight: bold; 
+            color: #334155; 
+            display: block; 
+            margin-top: 8px; 
+        }
+
+        input, select, button { 
+            width: 100%; 
+            padding: 8px 10px; 
+            margin: 4px 0; 
+            box-sizing: border-box; 
+            border-radius: 6px; 
+            border: 1px solid #cbd5e1; 
+            font-size: 0.9em; 
+            background-color: #ffffff;
+        }
+
+        button { 
+            background-color: #0284c7; 
+            color: white; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            padding: 10px; 
+            transition: background-color 0.2s;
+        }
+
+        button:hover { 
+            background-color: #0369a1; 
+        }
+        
+        .checkbox-container { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            margin-top: 8px; 
+        }
+
+        .checkbox-container input { 
+            width: auto; 
+            margin: 0; 
+        }
+
+        .checkbox-container label { 
+            margin: 0; 
+            font-weight: normal; 
+            font-size: 0.85em; 
+        }
+
+        #resultado { 
+            background: rgba(255, 255, 255, 0.95); 
+            border: 2px solid #16a34a; 
+            border-radius: 8px; 
+            padding: 15px; 
+            font-size: 1em; 
+            font-weight: bold; 
+            color: #15803d; 
+            white-space: pre-line; 
+            word-break: break-all; 
+            min-height: 50px; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1 class="main-title">Calculadora-Binaria-PLUS</h1>
+        <div class="sub-title">Sistema de Conversión y Operaciones Numéricas</div>
+    </div>
+
+    <div class="dashboard">
+        
+        <!-- Tarjeta 1: Conversor -->
+        <div class="card">
+            <h3>CONVERSOR</h3>
+            <label for="tipo_conversor">Modo:</label>
+            <select id="tipo_conversor">
+                <option value="dec_a_bin">Decimal -> Binario</option>
+                <option value="bin_a_dec">Binario -> Decimal</option>
+            </select>
+            <label for="num_conversor">Número:</label>
+            <input type="text" id="num_conversor" placeholder="Ej. 45.625 o 101.011">
+            <button py-click="ejecutar_conversor">Convertir</button>
+        </div>
+
+        <!-- Tarjeta 2: Operaciones con Complemento 1 y 2 -->
+        <div class="card">
+            <h3>OPERACIONES CON COMPLEMENTO 1 y 2</h3>
+            <label for="num1_comp">Primer Número (Decimal +/-):</label>
+            <input type="text" id="num1_comp" placeholder="Ej. 15 o -5">
+            <label for="operacion_comp">Operación:</label>
+            <select id="operacion_comp">
+                <option value="suma">Suma (+)</option>
+                <option value="resta">Resta (-)</option>
+            </select>
+            <label for="num2_comp">Segundo Número (Decimal +/-):</label>
+            <input type="text" id="num2_comp" placeholder="Ej. 7 o -12">
+            
+            <div class="checkbox-container">
+                <input type="checkbox" id="usar_bits_manual">
+                <label for="usar_bits_manual">Especificar número de bits manualmente</label>
+            </div>
+            
+            <label for="bits_comp" id="label_bits" style="opacity: 0.5;">Número de Bits:</label>
+            <input type="number" id="bits_comp" value="8" min="4" max="64" disabled style="opacity: 0.5;">
+            
+            <button py-click="ejecutar_complementos">Calcular Operación</button>
+        </div>
+
+        <!-- Tarjeta 3: Representación Punto Fijo -->
+        <div class="card">
+            <h3>Representación Punto Fijo</h3>
+            <label for="num_pfijo">Número Decimal:</label>
+            <input type="text" id="num_pfijo" placeholder="Ej. -5.375">
+            <label for="bits_e_fijo">Bits Enteros / Fracc:</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="number" id="bits_entero" value="4" title="Bits enteros">
+                <input type="number" id="bits_frac" value="4" title="Bits fraccionarios">
+            </div>
+            <button py-click="ejecutar_punto_fijo">Representar Punto Fijo</button>
+        </div>
+
+        <!-- Tarjeta 4: Representación Punto Flotante (Centrada) -->
+        <div class="card card-centrada">
+            <h3>Representación Punto Flotante</h3>
+            <label for="num_pflotante">Número Decimal:</label>
+            <input type="text" id="num_pflotante" placeholder="Ej. -12.375">
+            <label for="formato_ieee">Estándar:</label>
+            <select id="formato_ieee">
+                <option value="32">IEEE 754 (32 bits - Simple)</option>
+                <option value="64">IEEE 754 (64 bits - Doble)</option>
+            </select>
+            <button py-click="ejecutar_punto_flotante">Calcular IEEE 754</button>
+        </div>
+
+    </div>
+
+    <div id="resultado">Selecciona una opción e ingresa los valores para calcular...</div>
+
+    <!-- Script JS para habilitar/deshabilitar el campo de bits -->
+    <script>
+        document.getElementById('usar_bits_manual').addEventListener('change', function() {
+            const inputBits = document.getElementById('bits_comp');
+            const labelBits = document.getElementById('label_bits');
+            inputBits.disabled = !this.checked;
+            inputBits.style.opacity = this.checked ? "1" : "0.5";
+            labelBits.style.opacity = this.checked ? "1" : "0.5";
+        });
+    </script>
+
+    <!-- Código Python -->
+    <script type="py">
+        import struct
+        import math
+        from pyscript import document
+
+        PRECISION_MAX = 15
+
+        def decimal_a_binario_fraccion(num_dec, max_precision=PRECISION_MAX):
+            entero = int(num_dec)
+            fraccion = abs(num_dec) - abs(entero)
+            bin_entero = bin(abs(entero))[2:]
+            if entero == 0:
+                bin_entero = "0"
+            if fraccion == 0:
+                return bin_entero
+
+            bin_fraccion = []
+            count = 0
+            while fraccion > 0 and count < max_precision:
+                fraccion *= 2
+                bit = int(fraccion)
+                bin_fraccion.append(str(bit))
+                fraccion -= bit
+                count += 1
+
+            signo = "-" if num_dec < 0 else ""
+            return f"{signo}{bin_entero}." + "".join(bin_fraccion)
+
+        def binario_a_decimal_fraccion(bin_str):
+            partes = bin_str.split(".")
+            entero_str = partes[0]
+            num_dec = int(entero_str, 2)
+            if len(partes) > 1:
+                frac_str = partes[1]
+                suma_frac = 0.0
+                for i, bit in enumerate(frac_str, start=1):
+                    if bit == '1':
+                        suma_frac += 2 ** (-i)
+                    elif bit != '0':
+                        raise ValueError
+                num_dec += suma_frac
+            return num_dec
+
+        def calcular_bits_necesarios(*valores):
+            max_abs = max(abs(v) for v in valores)
+            if max_abs == 0:
+                return 4
+            bits_magnitud = math.floor(math.log2(max_abs)) + 1
+            return max(bits_magnitud + 1, 4)
+
+        def to_comp2(val, bits):
+            if val < 0:
+                val = (1 << bits) + val
+            return bin(val & ((1 << bits) - 1))[2:].zfill(bits)
+
+        def comp1_a_binario(val, bits):
+            if val >= 0:
+                return bin(val)[2:].zfill(bits)
+            else:
+                pos = bin(abs(val))[2:].zfill(bits)
+                return "".join("1" if b == "0" else "0" for b in pos)
+
+        def comp2_a_decimal(bin_str):
+            bits = len(bin_str)
+            val = int(bin_str, 2)
+            if bin_str[0] == '1':
+                val -= (1 << bits)
+            return val
+
+        def interpretar_c2_a_binario(res_c2):
+            if res_c2[0] == '1':
+                inverted = "".join("1" if b == "0" else "0" for b in res_c2)
+                val_magnitud = int(inverted, 2) + 1
+                bin_magnitud = bin(val_magnitud)[2:]
+                return f"-{bin_magnitud}"
+            else:
+                val_int = int(res_c2, 2)
+                return bin(val_int)[2:]
+
+        def ejecutar_conversor(event):
+            div_res = document.querySelector("#resultado")
+            entrada = document.querySelector("#num_conversor").value.strip().replace(",", ".")
+            tipo = document.querySelector("#tipo_conversor").value
+
+            if not entrada:
+                div_res.innerText = "Por favor, ingresa un número en el módulo Conversor."
+                return
+
+            try:
+                if tipo == "dec_a_bin":
+                    res = decimal_a_binario_fraccion(float(entrada))
+                    div_res.innerText = f"[CONVERSOR]\nDecimal: {entrada}\nBinario: {res}"
+                else:
+                    res = binario_a_decimal_fraccion(entrada)
+                    div_res.innerText = f"[CONVERSOR]\nBinario: {entrada}\nDecimal: {res}"
+            except ValueError:
+                div_res.innerText = "Error: Formato numérico no válido."
+
+        def ejecutar_complementos(event):
+            div_res = document.querySelector("#resultado")
+            n1_str = document.querySelector("#num1_comp").value.strip().replace(",", ".")
+            n2_str = document.querySelector("#num2_comp").value.strip().replace(",", ".")
+            op = document.querySelector("#operacion_comp").value
+            manual_bits = document.querySelector("#usar_bits_manual").checked
+
+            if not n1_str or not n2_str:
+                div_res.innerText = "Ingresa ambos números para realizar la operación."
+                return
+
+            try:
+                n1 = int(n1_str)
+                n2 = int(n2_str)
+                
+                op_symbol = "+" if op == "suma" else "-"
+                n2_efectivo = n2 if op == "suma" else -n2
+                res_dec = n1 + n2_efectivo
+
+                bits_min_req = calcular_bits_necesarios(n1, n2_efectivo, res_dec)
+
+                if manual_bits:
+                    bits = int(document.querySelector("#bits_comp").value)
+                    modo_str = f"MANUAL ({bits} BITS)"
+                else:
+                    bits = bits_min_req
+                    modo_str = f"AUTOMÁTICO ({bits} BITS)"
+
+                min_val = -(1 << (bits - 1))
+                max_val = (1 << (bits - 1)) - 1
+                
+                hay_overflow = not (min_val <= res_dec <= max_val) or not (min_val <= n1 <= max_val) or not (min_val <= n2_efectivo <= max_val)
+
+                b1_c1 = comp1_a_binario(n1, bits)
+                b2_c1 = comp1_a_binario(n2_efectivo, bits)
+                b1_c2 = to_comp2(n1, bits)
+                b2_c2 = to_comp2(n2_efectivo, bits)
+                res_c2 = to_comp2(res_dec, bits)
+
+                val_real_c2_dec = comp2_a_decimal(res_c2)
+                val_real_bin = interpretar_c2_a_binario(res_c2)
+
+                if hay_overflow:
+                    overflow_str = f"SÍ (Ocurrió un Desbordamiento/Overflow)\nSugerencia: Es necesario aumentar a un mínimo de {bits_min_req} bits."
+                else:
+                    overflow_str = "NO (El resultado cabe correctamente dentro del rango de bits)."
+
+                div_res.innerText = (
+                    f"[OPERACIÓN CON COMPLEMENTOS - {modo_str}]\n"
+                    f"Operación Decimal: {n1} {op_symbol} {n2} = {res_dec}\n\n"
+                    f"--- COMPLEMENTO A 1 ---\n"
+                    f"Num 1 ({'positivo: rellena 0s' if n1>=0 else 'negativo: rellena 1s'}): {b1_c1}\n"
+                    f"Num 2 ({'positivo: rellena 0s' if n2_efectivo>=0 else 'negativo: rellena 1s'}): {b2_c1}\n\n"
+                    f"--- COMPLEMENTO A 2 ---\n"
+                    f"Num 1: {b1_c2}\n"
+                    f"Num 2: {b2_c2}\n"
+                    f"Resultado Suma (C2 completo): {res_c2}\n\n"
+                    f"--- INTERPRETACIÓN DEL RESULTADO ---\n"
+                    f"Valor Real Interpretado (Decimal): {val_real_c2_dec}\n"
+                    f"Valor Real Interpretado (Binario): {val_real_bin}\n"
+                    f"Desbordamiento (Overflow): {overflow_str}"
+                )
+
+            except ValueError:
+                div_res.innerText = "Error: Introduce valores enteros válidos para las operaciones."
+
+        def ejecutar_punto_fijo(event):
+            div_res = document.querySelector("#resultado")
+            entrada = document.querySelector("#num_pfijo").value.strip().replace(",", ".")
+            b_ent = int(document.querySelector("#bits_entero").value)
+            b_frac = int(document.querySelector("#bits_frac").value)
+
+            if not entrada:
+                div_res.innerText = "Por favor, ingresa un número en Punto Fijo."
+                return
+
+            try:
+                val = float(entrada)
+                signo = "1" if val < 0 else "0"
+                abs_val = abs(val)
+                
+                bin_str = decimal_a_binario_fraccion(abs_val, b_frac)
+                partes = bin_str.split(".")
+                p_ent = partes[0].zfill(b_ent)
+                p_frac = partes[1].ljust(b_frac, '0') if len(partes) > 1 else "0" * b_frac
+                
+                div_res.innerText = (
+                    f"[REPRESENTACIÓN PUNTO FIJO]\n"
+                    f"Signo: {signo} | Entero ({b_ent}b): {p_ent} | Fracción ({b_frac}b): {p_frac}\n"
+                    f"Formato Completo: {signo}.{p_ent}.{p_frac}"
+                )
+            except ValueError:
+                div_res.innerText = "Error: Ingrese un valor decimal válido."
+
+        def ejecutar_punto_flotante(event):
+            div_res = document.querySelector("#resultado")
+            entrada = document.querySelector("#num_pflotante").value.strip().replace(",", ".")
+            formato = document.querySelector("#formato_ieee").value
+
+            if not entrada:
+                div_res.innerText = "Por favor, ingresa un número en Punto Flotante."
+                return
+
+            try:
+                val = float(entrada)
+                
+                if formato == "32":
+                    packed = struct.pack('>f', val)
+                    binary_str = "".join(bin(b)[2:].zfill(8) for b in packed)
+                    signo = binary_str[0]
+                    exponente = binary_str[1:9]
+                    mantisa = binary_str[9:]
+                    div_res.innerText = (
+                        f"[IEEE 754 - 32 BITS (PRECISIÓN SIMPLE)]\n"
+                        f"Signo (1 bit): {signo}\n"
+                        f"Exponente (8 bits): {exponente}\n"
+                        f"Mantisa (23 bits): {mantisa}\n"
+                        f"Binario Total: {binary_str}"
+                    )
+                else:
+                    packed = struct.pack('>d', val)
+                    binary_str = "".join(bin(b)[2:].zfill(8) for b in packed)
+                    signo = binary_str[0]
+                    exponente = binary_str[1:12]
+                    mantisa = binary_str[12:]
+                    div_res.innerText = (
+                        f"[IEEE 754 - 64 BITS (DOBLE PRECISIÓN)]\n"
+                        f"Signo (1 bit): {signo}\n"
+                        f"Exponente (11 bits): {exponente}\n"
+                        f"Mantisa (52 bits): {mantisa}\n"
+                        f"Binario Total: {binary_str}"
+                    )
+            except Exception:
+                div_res.innerText = "Error al calcular el punto flotante."
+    </script>
+
+</body>
+</html>
